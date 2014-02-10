@@ -228,7 +228,7 @@ $pg.root.add_menubar([
   ],
   [
     ['Configuration', 0],
-    ['Options...', proc{ $pg.options }, 0],
+    ['Options...', proc{ $pg.show_options }, 0],
   ],
   [
     ['Start', 0],
