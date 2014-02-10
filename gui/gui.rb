@@ -4,14 +4,19 @@ class MyCommand
     setkeys
     create_menu
   end
-  
-  def create_gui
-    $cfg.font = TkFont.new('Courier -14')
-    $pg.panel_infos_left = []
-    $pg.panel_infos_right = []
 
-    $pg.root = TkRoot.new do |root|
-      $pg.main_frame = Ttk::Frame.new(root) do |main_frame|
+  def load_notebook
+    p $cfg.config.xpath '/MyCommand/Notebook_l'
+    p $cfg.config.xpath '/MyCommand/Notebook_r'
+  end
+
+  private
+  def create_gui
+    @panel_infos_left = []
+    @panel_infos_right = []
+
+    @root = TkRoot.new do |root|
+      @main_frame = Ttk::Frame.new(root) do |main_frame|
         # Ttk::Frame.new(main_frame) do |frame|
         #   xscr = Ttk::Scrollbar.new(frame, :orient=>"horizontal")
         #   yscr = Ttk::Scrollbar.new(frame, :orient=>"vertical")
@@ -55,7 +60,7 @@ class MyCommand
                 'TkText',
                 'TkToplevel'
             ]
-            $pg.notebook_l = Ttk::Notebook.new(pw) { |nb|
+            @notebook_l = Ttk::Notebook.new(pw) { |nb|
               enable_traversal
               t1 = Ttk::Frame.new(nb) { |f1|
                 Ttk::Entry.new(f1).pack(:fill=>:x, :expand=>:no, :side=>:top)
@@ -79,7 +84,7 @@ class MyCommand
               nb.add(t2, :text=>'file left 2')
               pack(:fill=>:both, :expand=>:yes)
             }
-            $pg.notebook_r = Ttk::Notebook.new(pw) { |nb|
+            @notebook_r = Ttk::Notebook.new(pw) { |nb|
               enable_traversal
               t1 = Ttk::Frame.new(nb) { |f1|
                 Ttk::Entry.new(f1).pack(:fill=>:x, :expand=>:no, :side=>:top)
@@ -104,7 +109,7 @@ class MyCommand
               pack(:fill=>:both, :expand=>:yes)
             }
 
-            add($pg.notebook_l, $pg.notebook_r)
+            add(@notebook_l, @notebook_r)
             pack(:side=>:left, :expand=>:yes, :fill=>:both)
           end
 
@@ -147,7 +152,7 @@ class MyCommand
             },
             Ttk::Button.new(frame) {
               text 'None'
-              command { p 'none clicked'; $pg.command_label.text Time.now.to_s + ' >' }
+              command { p 'none clicked'; @command_label.text Time.now.to_s + ' >' }
             },
             :in=>frame, :side=>:left, :fill=>:x, :expand=>:yes
           )
@@ -155,11 +160,11 @@ class MyCommand
         end
 
         Ttk::Frame.new(main_frame) do |frame|
-          $pg.command_label = Ttk::Label.new(frame) { |x|
+          @command_label = Ttk::Label.new(frame) { |x|
             x.text 'path'
             x.justify :right
           }
-          $pg.command_input = Ttk::Combobox.new(frame) { |b|
+          @command_input = Ttk::Combobox.new(frame) { |b|
             b.font $cfg.font
             b.bind('Return', '%W') { |w|
               cmd = w.value.strip
@@ -168,7 +173,7 @@ class MyCommand
               w.values <<= cmd unless w.values.include?(cmd)
             }
           }
-          Tk.grid($pg.command_label, $pg.command_input, :in=>frame, :sticky=>:nswe)
+          Tk.grid(@command_label, @command_input, :in=>frame, :sticky=>:nswe)
           grid_columnconfigure(0, :weight=>1)
           grid_columnconfigure(1, :weight=>2)
           pack(:fill=>:x, :pady=>'1m', :padx=>'2m')
@@ -180,25 +185,25 @@ class MyCommand
   end
   
   def setkeys
-    $pg.root.bind('F1', proc{ $pg.help_index })
-    $pg.root.bind('F2', proc{ $pg.cmd_rename })
-    $pg.root.bind('F3', proc{ $pg.cmd_view })
-    $pg.root.bind('F4', proc{ $pg.cmd_edit })
-    $pg.root.bind('F5', proc{ $pg.cmd_copy })
-    $pg.root.bind('F6', proc{ $pg.cmd_move })
-    $pg.root.bind('F7', proc{ $pg.cmd_newfolder })
-    $pg.root.bind('F8', proc{ $pg.cmd_delete })
+    @root.bind('F1', proc{ $pg.help_index })
+    @root.bind('F2', proc{ $pg.cmd_rename })
+    @root.bind('F3', proc{ $pg.cmd_view })
+    @root.bind('F4', proc{ $pg.cmd_edit })
+    @root.bind('F5', proc{ $pg.cmd_copy })
+    @root.bind('F6', proc{ $pg.cmd_move })
+    @root.bind('F7', proc{ $pg.cmd_newfolder })
+    @root.bind('F8', proc{ $pg.cmd_delete })
 
-    $pg.root.bind('Tab', proc{ $pg.cmd_switch_active_panel })
+    @root.bind('Tab', proc{ $pg.cmd_switch_active_panel })
 
-    $pg.root.bind('BackSpace', proc{ $pg.cmd_gotoup })
+    @root.bind('BackSpace', proc{ $pg.cmd_gotoup })
   end
   
   def create_menu
-    $pg.root.bind('Control-f', proc{ $pg.ftp_connect })
-    $pg.root.bind('Control-r', proc{ $pg.show_reread })
+    @root.bind('Control-f', proc{ $pg.ftp_connect })
+    @root.bind('Control-r', proc{ $pg.show_reread })
 
-    $pg.root.add_menubar([
+    @root.add_menubar([
       [
         ['Files', 0],
         ['Quit', proc{ exit }, 0]
