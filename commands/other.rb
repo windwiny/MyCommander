@@ -5,5 +5,8 @@ class MyCommand
     p args
 
   end
-  
+  def cmd_gotoup
+    p 'goto up'
+    
+  end
 end
