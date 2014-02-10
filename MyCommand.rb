@@ -195,7 +195,7 @@ $pg.root = TkRoot.new do |root|
     pack(:expand=>:yes, :fill=>:both)
   end
 end
-$pg.root.bind('F1', proc{ $pg.about_box })
+$pg.root.bind('F1', proc{ $pg.help_index })
 $pg.root.bind('F2', proc{ $pg.cmd_rename })
 $pg.root.bind('F3', proc{ $pg.cmd_view })
 $pg.root.bind('F4', proc{ $pg.cmd_edit })
@@ -204,6 +204,9 @@ $pg.root.bind('F6', proc{ $pg.cmd_move })
 $pg.root.bind('F7', proc{ $pg.cmd_newfolder })
 $pg.root.bind('F8', proc{ $pg.cmd_delete })
 $pg.root.bind('Tab', proc{ $pg.cmd_switch_active_panel })
+
+
+$pg.root.bind('Control-r', proc{ $pg.show_reread })
 
 $pg.root.add_menubar([
   [
@@ -220,11 +223,13 @@ $pg.root.add_menubar([
   ],
   [
     ['Net', 0],
-    ['FTP Connect...', proc{ $pg.ftp_connect }, 0, 'Ctrl+F'],
+    ['FTP Connect...', proc{ $pg.ftp_connect }, 0, 'Ctrl-F'],
   ],
   [
     ['Show', 0],
-    ['Full', proc{ $pg.show_full }, 0, 'Ctrl+F2'],
+    ['Full', proc{ $pg.show_full }, 0, 'Ctrl-F2'],
+    '---',
+    ['Reread Source', proc{ $pg.show_reread }, 0, 'Ctrl-R'],
   ],
   [
     ['Configuration', 0],
@@ -238,7 +243,7 @@ $pg.root.add_menubar([
   ],
   [
     ['Help', 0],
-    ['Index', proc{ $pg.help_index }, 0, '<F1>'],
+    ['Index', proc{ $pg.help_index }, 0, 'F1'],
     ['Keyboard', proc{ $pg.help_keyboard }, 0],
     ['Registration Info', proc{ $pg.help_registration }, 0],
     ["Visit MyCommand's Web Site", proc{ $pg.help_visit_website }, 0],
