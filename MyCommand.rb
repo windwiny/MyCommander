@@ -205,4 +205,46 @@ $pg.root.bind('F7', proc{ $pg.cmd_newfolder })
 $pg.root.bind('F8', proc{ $pg.cmd_delete })
 $pg.root.bind('Tab', proc{ $pg.cmd_switch_active_panel })
 
+$pg.root.add_menubar([
+  [
+    ['Files', 0],
+    ['Quit', proc{ exit }, 0, 'Ctrl-Q']
+  ],
+  [
+    ['Mark', 0],
+    ['Select All', proc{ $pg.select_all }, 0, 'Ctrl Num +'],
+  ],
+  [
+    ['Commands', 0],
+    ['Go Back', proc{ $pg.go_back }, 0, 'Alt+Left Arrow'],
+  ],
+  [
+    ['Net', 0],
+    ['FTP Connect...', proc{ $pg.ftp_connect }, 0, 'Ctrl+F'],
+  ],
+  [
+    ['Show', 0],
+    ['Full', proc{ $pg.show_full }, 0, 'Ctrl+F2'],
+  ],
+  [
+    ['Configuration', 0],
+    ['Options...', proc{ $pg.options }, 0],
+  ],
+  [
+    ['Start', 0],
+    '---',
+    ['Change Start Menu...', proc{ $pg.change_start_menu }, 0],
+    ['Change Main Mneu...', proc{ $pg.change_main_menu }, 0],
+  ],
+  [
+    ['Help', 0],
+    ['Index', proc{ $pg.help_index }, 0, '<F1>'],
+    ['Keyboard', proc{ $pg.help_keyboard }, 0],
+    ['Registration Info', proc{ $pg.help_registration }, 0],
+    ["Visit MyCommand's Web Site", proc{ $pg.help_visit_website }, 0],
+    '---',
+    ['About ... ', proc{ $pg.about_box }, 0],
+  ],
+])
+
 Tk.mainloop
