@@ -19,6 +19,7 @@ class MyCommand
   def create_gui
     $ui.root = TkRoot.new do |root|
       title "#{PGNAME} #{VERSION} - #{REGISTER}"
+      geometry $cfg.config.xpath("/#{PGNAME}/WindowSize").first.text
 
       $ui.main_frame = Ttk::Frame.new(root) do |main_frame|
         # Ttk::Frame.new(main_frame) do |frame|

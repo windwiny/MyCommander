@@ -40,6 +40,11 @@ class MyConfig
     @config.root << "<CreateBy>#{Time.now}</CreateBy>" if @config.xpath("/#{PGNAME}/CreateBy").empty?
     @config.root << "<ModifyBy>#{Time.now}</ModifyBy>" if @config.xpath("/#{PGNAME}/ModifyBy").empty?
     @config.root << "<Font>Courier -14</Font>" if @config.xpath("/#{PGNAME}/Font").empty?
+    if @config.xpath("/#{PGNAME}/WindowSize").empty?
+      width = [Tk.root.maxsize[0], Tk.root.winfo_screenwidth].min
+      height = [Tk.root.maxsize[1], Tk.root.winfo_screenheight].min
+      @config.root << "<WindowSize>#{width}x#{height}</WindowSize>"
+    end
   end
   
   def loadconfig
