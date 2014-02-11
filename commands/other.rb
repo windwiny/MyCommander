@@ -23,8 +23,7 @@ class MyCommand
   def treeitem_open(tree)
     dirname = tree.get(tree.focus_item, 'name')
     vpath = $ui.tree2addr[tree]
-    dir = File.join(vpath.value, dirname)
-    p dir
+    dir = File.expand_path(dirname, vpath.value)
     if File.directory?(dir)
       vpath.value = dir
       foldertab_reread(tree, vpath.value)
@@ -47,6 +46,7 @@ class MyCommand
 
       pentry = Ttk::Entry.new(f1, :textvariable=>vpath, :state=>:readonly)
       tree = Ttk::Treeview.new(f1, :columns=>%w(name ext size date attr), :show=>:headings)
+      tree.focus
       vsb = tree.yscrollbar(Ttk::Scrollbar.new(f1))
       $ui.tree2addr[tree] = vpath
 
@@ -62,7 +62,7 @@ class MyCommand
       tree.bind('BackSpace', proc{ $pg.cmd_gotoup(tree) })  #FIXME: destory a widget, bind key auto release?
       # tree.font $cfg.font
 
-      font = $cfg.font#Ttk::Style.lookup(tree[:style], :font)
+      font = Ttk::Style.lookup(tree[:style], :font)
       cols = %w(name ext size date attr)
       cols.zip(%w(Name Ext Size Date Attr)).each { |col, name|
         tree.heading_configure(col, :text=>name, :command=>proc{ $pg.treeitem_sort_by(tree, col, false) })
@@ -83,7 +83,11 @@ class MyCommand
     font = Ttk::Style.lookup(tree[:style], :font)
     cols = %w(name ext size date attr)
 
-    file_infos = Dir.chdir(path) { v=Dir.glob('*', File::FNM_DOTMATCH);v.shift(2);v }
+    tree.delete(tree.children(tree.root))
+    file_infos = Dir.chdir(path) do
+      #TODO
+      v=Dir.glob('*', File::FNM_DOTMATCH);v.shift;v
+    end
     file_infos.each do |name, ext, size, date, attr|
       tree.insert(nil, :end, :values=>[name, ext, size, date, attr])
       cols.zip([name, ext, size, date, attr]).each do |col, val|
