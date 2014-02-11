@@ -6,8 +6,8 @@ class MyCommand
   end
 
   def load_notebook
-    paths_l = $cfg.config.xpath('/MyCommand/Notebook_l').map(&:text)
-    paths_r = $cfg.config.xpath('/MyCommand/Notebook_r').map(&:text)
+    paths_l = $cfg.config.xpath("/#{PGNAME}/Notebook_l").map(&:text)
+    paths_r = $cfg.config.xpath("/#{PGNAME}/Notebook_r").map(&:text)
     paths_l << Dir.home if paths_l.empty?
     paths_r << Dir.home if paths_r.empty?
 
@@ -18,7 +18,7 @@ class MyCommand
   private
   def create_gui
     $ui.root = TkRoot.new do |root|
-      title "MyCommand #{VERSION} - #{REGISTER}"
+      title "#{PGNAME} #{VERSION} - #{REGISTER}"
 
       $ui.main_frame = Ttk::Frame.new(root) do |main_frame|
         # Ttk::Frame.new(main_frame) do |frame|
@@ -184,7 +184,7 @@ class MyCommand
         ['Index', proc{ $pg.help_index }, 0, 'F1'],
         ['Keyboard', proc{ $pg.help_keyboard }, 0],
         ['Registration Info', proc{ $pg.help_registration }, 0],
-        ["Visit MyCommand's Web Site", proc{ $pg.help_visit_website }, 0],
+        ["Visit #{PGNAME}'s Web Site", proc{ $pg.help_visit_website }, 0],
         '---',
         ['About ... ', proc{ $pg.about_box }, 0],
       ],

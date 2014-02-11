@@ -5,6 +5,7 @@ require "tk"
 require "nokogiri"
 
 
+PGNAME = "MyCommand"
 VERSION = "0.1"
 REGISTER = "NOT REGISTERED"
 
@@ -25,7 +26,7 @@ class MyConfig
 
   def save
     if @old_xml != @config.to_s
-      @config.xpath('/MyCommand/ModifyBy').first.content = Time.now
+      @config.xpath("/#{PGNAME}/ModifyBy").first.content = Time.now
       puts "Write config to #{@config_file}"
       File.write(@config_file, @config)
       @old_xml = @config.to_s
@@ -35,14 +36,14 @@ class MyConfig
   private
   def initconfig
     @config.encoding = 'utf-8' unless @config.encoding
-    @config << "<MyCommand />" unless @config.root
-    @config.root << "<CreateBy>#{Time.now}</CreateBy>" if @config.xpath('/MyCommand/CreateBy').empty?
-    @config.root << "<ModifyBy>#{Time.now}</ModifyBy>" if @config.xpath('/MyCommand/ModifyBy').empty?
-    @config.root << "<Font>Courier -14</Font>" if @config.xpath('/MyCommand/Font').empty?
+    @config << "<#{PGNAME} />" unless @config.root
+    @config.root << "<CreateBy>#{Time.now}</CreateBy>" if @config.xpath("/#{PGNAME}/CreateBy").empty?
+    @config.root << "<ModifyBy>#{Time.now}</ModifyBy>" if @config.xpath("/#{PGNAME}/ModifyBy").empty?
+    @config.root << "<Font>Courier -14</Font>" if @config.xpath("/#{PGNAME}/Font").empty?
   end
   
   def loadconfig
-    @font = TkFont.new(@config.xpath('/MyCommand/Font').first.text)
+    @font = TkFont.new(@config.xpath("/#{PGNAME}/Font").first.text)
   end
 end
 
