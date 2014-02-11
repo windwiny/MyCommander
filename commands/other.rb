@@ -60,13 +60,18 @@ class MyCommand
       tree.bind('<TreeviewOpen>', '%W') { |w| $pg.treeitem_open(w) }
       tree.bind('<TreeviewSelect>', '%W') { |w| $pg.treeitem_select(w) }
       tree.bind('BackSpace', proc{ $pg.cmd_gotoup(tree) })  #FIXME: destory a widget, bind key auto release?
+      # tree.font $cfg.font
 
-      font = Ttk::Style.lookup(tree[:style], :font)
+      font = $cfg.font#Ttk::Style.lookup(tree[:style], :font)
       cols = %w(name ext size date attr)
       cols.zip(%w(Name Ext Size Date Attr)).each { |col, name|
-        tree.heading_configure(col, :text=>name, :command=>proc{ treeitem_sort_by(tree, col, false) })
-        tree.column_configure(col, :width=>TkFont.measure(font, name))
+        tree.heading_configure(col, :text=>name, :command=>proc{ $pg.treeitem_sort_by(tree, col, false) })
+        # tree.column_configure(col, :width=>TkFont.measure(font, name))
       }
+      tree.column_configure('ext',  :stretch=>0, :width=>TkFont.measure(font, 'w'*4))
+      tree.column_configure('size', :stretch=>0, :width=>TkFont.measure(font, 'w'*12))
+      tree.column_configure('date', :stretch=>0, :width=>TkFont.measure(font, 'w'*19))
+      tree.column_configure('attr', :stretch=>0, :width=>TkFont.measure(font, 'w'*10))
 
       $pg.foldertab_reread(tree, path)
     }
