@@ -10,50 +10,9 @@ class MyCommand
     paths_r = $cfg.config.xpath('/MyCommand/Notebook_r').map(&:text)
     paths_l << Dir.home if paths_l.empty?
     paths_r << Dir.home if paths_r.empty?
-    
-    [paths_l, $ui.notebook_l, paths_r, $ui.notebook_r].each_slice(2) do |paths, nb|
-      paths.each do |path|
-        next unless File.directory?(path)
 
-        file_infos = Dir.chdir(path) { v=Dir.glob('*', File::FNM_DOTMATCH);v.shift(2);v }
-
-        t1 = Ttk::Frame.new(nb) { |f1|
-          vpath = TkVariable.new
-          vpath.value = path
-          pentry = Ttk::Entry.new(f1, :textvariable=>vpath)
-
-          tree = Ttk::Treeview.new(f1, :columns=>%w(name ext size date attr), :show=>:headings)
-          vsb = tree.yscrollbar(Ttk::Scrollbar.new(f1))
-
-          tree.bind('Double-Button', proc{ p [Time.now,self,self.class] } )
-          tree.bind('Return', proc{ p [Time.now,self,self.class] } )
-
-          Tk.grid(pentry,    :in=>f1, :sticky=>'nsew')
-          Tk.grid(tree, vsb, :in=>f1, :sticky=>'nsew')
-
-          f1.grid_columnconfigure(0, :weight=>1)
-          f1.grid_rowconfigure(1, :weight=>1)
-
-          font = Ttk::Style.lookup(tree[:style], :font)
-          cols = %w(name ext size date attr)
-          cols.zip(%w(Name Ext Size Date Attr)).each { |col, name|
-            tree.heading_configure(col, :text=>name, :command=>proc{ $pg.sort_by(tree, col, false) })
-            tree.column_configure(col, :width=>TkFont.measure(font, name))
-          }
-
-          file_infos.each do |name, ext, size, date, attr|
-            tree.insert(nil, :end, :values=>[name, ext, size, date, attr])
-            cols.zip([name, ext, size, date, attr]).each do |col, val|
-              len = TkFont.measure(font, "#{val}  ")
-              if tree.column_cget(col, :width) < len
-                tree.column_configure(col, :width=>len)
-              end
-            end
-          end
-        }
-        nb.add(t1, :text=>File.split(path)[1])
-      end
-    end
+    paths_l.each { |path| add_foldertab($ui.notebook_l, path) }
+    paths_r.each { |path| add_foldertab($ui.notebook_r, path) }
   end
 
   private
@@ -182,7 +141,8 @@ class MyCommand
 
     $ui.root.bind('Tab', proc{ $pg.cmd_switch_active_panel })
 
-    $ui.root.bind('BackSpace', proc{ $pg.cmd_gotoup })
+    # $ui.root.bind('BackSpace', proc{ $pg.cmd_gotoup })
+    $ui.root.bind('Control-F12', proc{ $pg.cmd_show_focus })
   end
   
   def create_menu
