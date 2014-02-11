@@ -1,13 +1,9 @@
 class MyCommand
-
-  def aff *args
-    p 'in aff'
-    p args
-
+  def cmd_show_focus
+    p Tk.focus
   end
 
   def cmd_gotoup(tree)
-    p 'goto up'
     vpath = $ui.tree2addr[tree]
     old_path = vpath.value
     vpath.value = File.dirname(old_path)
@@ -16,7 +12,6 @@ class MyCommand
     end
   end
 
-  ## Code to do the sorting of the tree contents when clicked on
   def treeitem_sort_by(tree, col, direction)
     tree.children(nil).map!{|row| [tree.get(row, col), row.id]} .
       sort(&((direction)? proc{|x, y| y <=> x}: proc{|x, y| x <=> y})) .
@@ -26,15 +21,18 @@ class MyCommand
   end
 
   def treeitem_open(tree)
-    p tree.selection.map { |x| x.value[0] }
+    dirname = tree.get(tree.focus_item, 'name')
+    vpath = $ui.tree2addr[tree]
+    dir = File.join(vpath.value, dirname)
+    p dir
+    if File.directory?(dir)
+      vpath.value = dir
+      foldertab_reread(tree, vpath.value)
+    end
   end
 
   def treeitem_select(tree)
-    p tree.selection.map { |x| x.value[0] }
-  end
-
-  def cmd_show_focus
-    p Tk.focus
+    p tree.selection.map { |item| tree.get(item, 'name') }
   end
 
   def foldertab_new(nb, path)
@@ -57,6 +55,19 @@ class MyCommand
       f1.grid_columnconfigure(0, :weight=>1)
       f1.grid_rowconfigure(1, :weight=>1)
 
+      # tree.bind('Double-Button', proc{ p [Time.now,self,self.class] } )
+      # tree.bind('Return', proc{ p [Time.now,self,self.class] } )
+      tree.bind('<TreeviewOpen>', '%W') { |w| $pg.treeitem_open(w) }
+      tree.bind('<TreeviewSelect>', '%W') { |w| $pg.treeitem_select(w) }
+      tree.bind('BackSpace', proc{ $pg.cmd_gotoup(tree) })  #FIXME: destory a widget, bind key auto release?
+
+      font = Ttk::Style.lookup(tree[:style], :font)
+      cols = %w(name ext size date attr)
+      cols.zip(%w(Name Ext Size Date Attr)).each { |col, name|
+        tree.heading_configure(col, :text=>name, :command=>proc{ treeitem_sort_by(tree, col, false) })
+        tree.column_configure(col, :width=>TkFont.measure(font, name))
+      }
+
       $pg.foldertab_reread(tree, path)
     }
     nb.add(t1, :text=>File.split(path)[1])
@@ -64,18 +75,8 @@ class MyCommand
   end
 
   def foldertab_reread(tree, path)
-    # tree.bind('Double-Button', proc{ p [Time.now,self,self.class] } )
-    # tree.bind('Return', proc{ p [Time.now,self,self.class] } )
-    tree.bind('<TreeviewOpen>', '%W') { |w| $pg.treeitem_open(w) }
-    tree.bind('<TreeviewSelect>', '%W') { |w| $pg.treeitem_select(w) }
-    tree.bind('BackSpace', proc{ $pg.cmd_gotoup(tree) })  #FIXME: destory a widget, bind key auto release?
-
     font = Ttk::Style.lookup(tree[:style], :font)
     cols = %w(name ext size date attr)
-    cols.zip(%w(Name Ext Size Date Attr)).each { |col, name|
-      tree.heading_configure(col, :text=>name, :command=>proc{ treeitem_sort_by(tree, col, false) })
-      tree.column_configure(col, :width=>TkFont.measure(font, name))
-    }
 
     file_infos = Dir.chdir(path) { v=Dir.glob('*', File::FNM_DOTMATCH);v.shift(2);v }
     file_infos.each do |name, ext, size, date, attr|

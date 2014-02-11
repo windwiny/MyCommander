@@ -2,12 +2,10 @@ class MyCommand
   def show_full
     
   end
-  
+
   def show_reread
-    # $paneList ||= TkVariable.new
-    begin
-      $paneList.value = Dir.glob( '/*') +[ Time.now.to_s]
-    rescue 
-    end
+    tree = Tk.focus
+    vpath = $ui.tree2addr[tree]
+    foldertab_reread(tree, vpath.value) if vpath
   end
 end
