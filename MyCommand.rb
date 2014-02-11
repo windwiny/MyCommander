@@ -5,6 +5,11 @@ require "tk"
 require "nokogiri"
 
 
+VERSION = "0.1"
+REGISTER = "NOT REGISTERED"
+
+
+
 class MyConfig
   attr_accessor :font
   attr_accessor :config_file
@@ -68,6 +73,7 @@ class MyCommand
       chs.map(&:destroy)
       $cfg.save
       init_gui
+      load_notebook
     end
   end
 end
