@@ -64,6 +64,7 @@ class UI
   attr_accessor :root, :main_frame
   attr_accessor :notebook_l, :notebook_r
   attr_accessor :command_input, :command_label
+  attr_accessor :lasttab
 end
 
 class MyCommand
@@ -91,11 +92,31 @@ class MyCommand
   end
 end
 
+$image = {}
+
+$image['refresh'] = TkPhotoImage.new(:height=>16, :format=>'GIF', :data=><<EOD)
+    R0lGODlhEAAQAPMAAMz/zCpnKdb/1z9mPypbKBtLGy9NMPL/9Or+6+P+4j1Y
+    PwQKBP7//xMLFAYBCAEBASH5BAEAAAAALAAAAAAQABAAAwR0EAD3Gn0Vyw0e
+    ++CncU7IIAezMA/nhUqSLJizvSdCEEjy2ZIV46AwDAoDHwPYGSoEiUJAAGJ6
+    EDHBNCFINW5OqABKSFk/B9lUa94IDwIFgewFMwQDQwCZQCztTgM9Sl8SOEMG
+    KSAthiaOjBMPDhQONBiXABEAOw==
+EOD
+
+$image['view'] = TkPhotoImage.new(:height=>16, :format=>'GIF', :data=><<EOD)
+    R0lGODlhEAAQAPMAAMz/zP///8DAwICAgH9/fwAAAAAAAAAAAAAAAAAAAAAA
+    AAAAAAAAAAAAAAAAAAAAACH5BAEAAAAALAAAAAAQABAAAwRIcMhJB7h3hM33
+    KFjWdQQYap1QrCaGBmrRrS4nj5b53jOgbwXBKGACoYLDIuAoHCmZyYvR1rT5
+    RMAq8LqcIYGsrjPsW1XOmFUEADs=
+EOD
+
+
 $cfg = MyConfig.new
 END { $cfg.save rescue nil }
 
 $ui = UI.new
 $pg = MyCommand.new
 $pg.run
+
+$ui.lasttab.focus
 
 Tk.mainloop

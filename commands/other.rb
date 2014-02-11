@@ -31,7 +31,8 @@ class MyCommand
   end
 
   def treeitem_select(tree)
-    p tree.selection.map { |item| tree.get(item, 'name') }
+    names = tree.selection.map { |item| tree.get(item, 'name') }
+    #TODO
   end
 
   def foldertab_new(nb, path)
@@ -46,7 +47,6 @@ class MyCommand
 
       pentry = Ttk::Entry.new(f1, :textvariable=>vpath, :state=>:readonly)
       tree = Ttk::Treeview.new(f1, :columns=>%w(name ext size date attr), :show=>:headings)
-      tree.focus
       vsb = tree.yscrollbar(Ttk::Scrollbar.new(f1))
       $ui.tree2addr[tree] = vpath
 
@@ -59,8 +59,7 @@ class MyCommand
       # tree.bind('Return', proc{ p [Time.now,self,self.class] } )
       tree.bind('<TreeviewOpen>', '%W') { |w| $pg.treeitem_open(w) }
       tree.bind('<TreeviewSelect>', '%W') { |w| $pg.treeitem_select(w) }
-      tree.bind('BackSpace', proc{ $pg.cmd_gotoup(tree) })  #FIXME: destory a widget, bind key auto release?
-      # tree.font $cfg.font
+      tree.bind('BackSpace', proc{ $pg.cmd_gotoup(tree) })
 
       font = Ttk::Style.lookup(tree[:style], :font)
       cols = %w(name ext size date attr)
@@ -69,9 +68,9 @@ class MyCommand
         # tree.column_configure(col, :width=>TkFont.measure(font, name))
       }
       tree.column_configure('ext',  :stretch=>0, :width=>TkFont.measure(font, 'w'*4))
-      tree.column_configure('size', :stretch=>0, :width=>TkFont.measure(font, 'w'*12))
-      tree.column_configure('date', :stretch=>0, :width=>TkFont.measure(font, 'w'*19))
-      tree.column_configure('attr', :stretch=>0, :width=>TkFont.measure(font, 'w'*10))
+      tree.column_configure('size', :stretch=>0, :width=>TkFont.measure(font, '0'*12))
+      tree.column_configure('date', :stretch=>0, :width=>TkFont.measure(font, '0'*19))
+      tree.column_configure('attr', :stretch=>0, :width=>TkFont.measure(font, '-'*11))
 
       $pg.foldertab_reread(tree, path)
     }
@@ -83,21 +82,26 @@ class MyCommand
     font = Ttk::Style.lookup(tree[:style], :font)
     cols = %w(name ext size date attr)
 
-    tree.delete(tree.children(tree.root))
+    tree.delete(tree.root.children)
     file_infos = Dir.chdir(path) do
-      #TODO
-      v=Dir.glob('*', File::FNM_DOTMATCH);v.shift;v
-    end
-    file_infos.each do |name, ext, size, date, attr|
-      tree.insert(nil, :end, :values=>[name, ext, size, date, attr])
-      cols.zip([name, ext, size, date, attr]).each do |col, val|
-        len = TkFont.measure(font, "#{val}  ")
-        if tree.column_cget(col, :width) < len
-          tree.column_configure(col, :width=>len)
-        end
+      v=Dir.glob('*', File::FNM_DOTMATCH);v.shift
+      v.map do |fn|
+        st = File.stat(fn)
+        [fn, File.extname(fn), '%8d'%st.size, st.mtime.strftime('%Y/%m/%d %H:%M:%S'), '%8o'%st.mode]
       end
     end
+    file_infos.each do |name, ext, size, date, attr|
+      it = tree.insert(nil, :end, :values=>[name, ext, size, date, attr])
+      # cols.zip([name, ext, size, date, attr]).each do |col, val|
+      #   len = TkFont.measure(font, "#{val}  ")
+      #   if tree.column_cget(col, :width) < len
+      #     tree.column_configure(col, :width=>len)
+      #   end
+      # end
+    end
 
+    $ui.lasttab = tree.focus
+    tree.selection_set(tree.root.children[0])
   end
 
 end
