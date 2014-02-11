@@ -6,8 +6,29 @@ class MyCommand
   end
 
   def load_notebook
-    p $cfg.config.xpath '/MyCommand/Notebook_l'
-    p $cfg.config.xpath '/MyCommand/Notebook_r'
+    paths_l = $cfg.config.xpath('/MyCommand/Notebook_l').map(&:text)
+    paths_r = $cfg.config.xpath('/MyCommand/Notebook_r').map(&:text)
+    paths_l << Dir.home if paths_l.empty?
+    paths_r << Dir.home if paths_r.empty?
+    
+    [paths_l, $ui.notebook_l, paths_r, $ui.notebook_r].each_slice(2) do |paths, nb|
+      paths.each do |path|
+        next unless File.directory?(path)
+        file_infos = TkVariable.new
+        file_infos.value = Dir.chdir(path) { v=Dir.glob('*', File::FNM_DOTMATCH);v.shift(2);v }
+        p file_infos
+        t1 = Ttk::Frame.new(nb) { |f1|
+          Ttk::Entry.new(f1).pack(:fill=>:x, :expand=>:no, :side=>:top)
+          TkListbox.new(f1, :listvariable=>file_infos) {
+            # itemconfigure(0, :background=>self.cget(:foreground),
+            #                  :foreground=>self.cget(:background) )
+            yscrollbar(TkScrollbar.new(f1).pack(:side=>:right, :fill=>:y))
+            pack(:fill=>:both, :expand=>:yes, :side=>:top)
+          }
+        }
+        nb.add(t1, :text=>File.split(path)[1])
+      end
+    end
   end
 
   private
@@ -15,8 +36,8 @@ class MyCommand
     @panel_infos_left = []
     @panel_infos_right = []
 
-    @root = TkRoot.new do |root|
-      @main_frame = Ttk::Frame.new(root) do |main_frame|
+    $ui.root = TkRoot.new do |root|
+      $ui.main_frame = Ttk::Frame.new(root) do |main_frame|
         # Ttk::Frame.new(main_frame) do |frame|
         #   xscr = Ttk::Scrollbar.new(frame, :orient=>"horizontal")
         #   yscr = Ttk::Scrollbar.new(frame, :orient=>"vertical")
@@ -29,8 +50,8 @@ class MyCommand
         #     t.xscrollbar xscr
         #     t.yscrollbar yscr
         #   }
-        #   Tk.grid(tx, yscr, :in =>frame, :sticky=>:nswe)
-        #   Tk.grid(xscr, :in =>frame, :sticky=>:nswe)
+        #   Tk.grid(tx, yscr, :in=>frame, :sticky=>:nswe)
+        #   Tk.grid(xscr, :in=>frame, :sticky=>:nswe)
         #   grid_rowconfigure(0, :weight=>1)
         #   grid_columnconfigure(0, :weight=>1)
         #   pack(:expand=>:yes, :fill=>:both, :padx=>'1m')
@@ -38,78 +59,16 @@ class MyCommand
 
         Ttk::Frame.new(main_frame) do |frame|
           Ttk::Panedwindow.new(frame, :orient=>:horizontal) do |pw|
-            $paneList = TkVariable.new
-            $paneList.value = [
-                'List of Ruby/Tk Widgets',
-                'TkButton',
-                'TkCanvas',
-                'TkCheckbutton',
-                'TkEntry',
-                'TkFrame',
-                'TkLabel',
-                'TkLabelframe',
-                'TkListbox',
-                'TkMenu',
-                'TkMenubutton',
-                'TkMessage',
-                'TkPanedwindow',
-                'TkRadiobutton',
-                'TkScale',
-                'TkScrollbar',
-                'TkSpinbox',
-                'TkText',
-                'TkToplevel'
-            ]
-            @notebook_l = Ttk::Notebook.new(pw) { |nb|
+            $ui.notebook_l = Ttk::Notebook.new(pw) { |nb|
               enable_traversal
-              t1 = Ttk::Frame.new(nb) { |f1|
-                Ttk::Entry.new(f1).pack(:fill=>:x, :expand=>:no, :side=>:top)
-                TkListbox.new(f1, :listvariable=>$paneList) {
-                  itemconfigure(0, :background=>self.cget(:foreground),
-                                   :foreground=>self.cget(:background) )
-                  yscrollbar(TkScrollbar.new(f1).pack(:side=>:right, :fill=>:y))
-                  pack(:fill=>:both, :expand=>:yes, :side=>:top)
-                }
-              }
-              t2 = Ttk::Frame.new(nb) { |f1|
-                Ttk::Entry.new(f1).pack(:fill=>:x, :expand=>:no, :side=>:top)
-                TkListbox.new(f1, :listvariable=>$paneList) {
-                  itemconfigure(0, :background=>self.cget(:foreground),
-                                   :foreground=>self.cget(:background) )
-                  yscrollbar(TkScrollbar.new(f1).pack(:side=>:right, :fill=>:y))
-                  pack(:fill=>:both, :expand=>:yes, :side=>:top)
-                }
-              }
-              nb.add(t1, :text=>'file left')
-              nb.add(t2, :text=>'file left 2')
               pack(:fill=>:both, :expand=>:yes)
             }
-            @notebook_r = Ttk::Notebook.new(pw) { |nb|
+            $ui.notebook_r = Ttk::Notebook.new(pw) { |nb|
               enable_traversal
-              t1 = Ttk::Frame.new(nb) { |f1|
-                Ttk::Entry.new(f1).pack(:fill=>:x, :expand=>:no, :side=>:top)
-                TkListbox.new(f1, :listvariable=>$paneList) {
-                  itemconfigure(0, :background=>self.cget(:foreground),
-                                   :foreground=>self.cget(:background) )
-                  yscrollbar(TkScrollbar.new(f1).pack(:side=>:right, :fill=>:y))
-                  pack(:fill=>:both, :expand=>:yes, :side=>:top)
-                }
-              }
-              t2 = Ttk::Frame.new(nb) { |f1|
-                Ttk::Entry.new(f1).pack(:fill=>:x, :expand=>:no, :side=>:top)
-                TkListbox.new(f1, :listvariable=>$paneList) {
-                  itemconfigure(0, :background=>self.cget(:foreground),
-                                   :foreground=>self.cget(:background) )
-                  yscrollbar(TkScrollbar.new(f1).pack(:side=>:right, :fill=>:y))
-                  pack(:fill=>:both, :expand=>:yes, :side=>:top)
-                }
-              }
-              nb.add(t1, :text=>'file right')
-              nb.add(t2, :text=>'file right 2')
               pack(:fill=>:both, :expand=>:yes)
             }
 
-            add(@notebook_l, @notebook_r)
+            add($ui.notebook_l, $ui.notebook_r)
             pack(:side=>:left, :expand=>:yes, :fill=>:both)
           end
 
@@ -152,7 +111,7 @@ class MyCommand
             },
             Ttk::Button.new(frame) {
               text 'None'
-              command { p 'none clicked'; @command_label.text Time.now.to_s + ' >' }
+              command { p 'none clicked'; $pg.command_label.text Time.now.to_s + ' >' }
             },
             :in=>frame, :side=>:left, :fill=>:x, :expand=>:yes
           )
@@ -160,11 +119,11 @@ class MyCommand
         end
 
         Ttk::Frame.new(main_frame) do |frame|
-          @command_label = Ttk::Label.new(frame) { |x|
+          $ui.command_label = Ttk::Label.new(frame) { |x|
             x.text 'path'
             x.justify :right
           }
-          @command_input = Ttk::Combobox.new(frame) { |b|
+          $ui.command_input = Ttk::Combobox.new(frame) { |b|
             b.font $cfg.font
             b.bind('Return', '%W') { |w|
               cmd = w.value.strip
@@ -173,7 +132,7 @@ class MyCommand
               w.values <<= cmd unless w.values.include?(cmd)
             }
           }
-          Tk.grid(@command_label, @command_input, :in=>frame, :sticky=>:nswe)
+          Tk.grid($ui.command_label, $ui.command_input, :in=>frame, :sticky=>:nswe)
           grid_columnconfigure(0, :weight=>1)
           grid_columnconfigure(1, :weight=>2)
           pack(:fill=>:x, :pady=>'1m', :padx=>'2m')
@@ -185,25 +144,25 @@ class MyCommand
   end
   
   def setkeys
-    @root.bind('F1', proc{ $pg.help_index })
-    @root.bind('F2', proc{ $pg.cmd_rename })
-    @root.bind('F3', proc{ $pg.cmd_view })
-    @root.bind('F4', proc{ $pg.cmd_edit })
-    @root.bind('F5', proc{ $pg.cmd_copy })
-    @root.bind('F6', proc{ $pg.cmd_move })
-    @root.bind('F7', proc{ $pg.cmd_newfolder })
-    @root.bind('F8', proc{ $pg.cmd_delete })
+    $ui.root.bind('F1', proc{ $pg.help_index })
+    $ui.root.bind('F2', proc{ $pg.cmd_rename })
+    $ui.root.bind('F3', proc{ $pg.cmd_view })
+    $ui.root.bind('F4', proc{ $pg.cmd_edit })
+    $ui.root.bind('F5', proc{ $pg.cmd_copy })
+    $ui.root.bind('F6', proc{ $pg.cmd_move })
+    $ui.root.bind('F7', proc{ $pg.cmd_newfolder })
+    $ui.root.bind('F8', proc{ $pg.cmd_delete })
 
-    @root.bind('Tab', proc{ $pg.cmd_switch_active_panel })
+    $ui.root.bind('Tab', proc{ $pg.cmd_switch_active_panel })
 
-    @root.bind('BackSpace', proc{ $pg.cmd_gotoup })
+    $ui.root.bind('BackSpace', proc{ $pg.cmd_gotoup })
   end
   
   def create_menu
-    @root.bind('Control-f', proc{ $pg.ftp_connect })
-    @root.bind('Control-r', proc{ $pg.show_reread })
+    $ui.root.bind('Control-f', proc{ $pg.ftp_connect })
+    $ui.root.bind('Control-r', proc{ $pg.show_reread })
 
-    @root.add_menubar([
+    $ui.root.add_menubar([
       [
         ['Files', 0],
         ['Quit', proc{ exit }, 0]

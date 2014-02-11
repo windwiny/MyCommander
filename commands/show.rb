@@ -4,6 +4,10 @@ class MyCommand
   end
   
   def show_reread
-    $paneList.value = Dir.glob( '/*') +[ Time.now.to_s]
+    # $paneList ||= TkVariable.new
+    begin
+      $paneList.value = Dir.glob( '/*') +[ Time.now.to_s]
+    rescue 
+    end
   end
 end

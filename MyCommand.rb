@@ -41,6 +41,12 @@ class MyConfig
   end
 end
 
+class UI
+  attr_accessor :panel_infos_left, :panel_infos_right
+  attr_accessor :root, :main_frame
+  attr_accessor :notebook_l, :notebook_r
+  attr_accessor :command_input, :command_label
+end
 
 class MyCommand
   def initialize
@@ -48,11 +54,6 @@ class MyCommand
     init_gui
     load_notebook
   end
-
-  attr_accessor :panel_infos_left, :panel_infos_right
-  attr_accessor :root, :main_frame
-  attr_accessor :notebook_l, :notebook_r
-  attr_accessor :command_input, :command_label
 
   def load_all_source
     %w{commands gui}.each do |dir|
@@ -72,7 +73,7 @@ class MyCommand
 end
 
 $cfg = MyConfig.new
-
+$ui = UI.new
 $pg = MyCommand.new
 END { $cfg.save rescue nil }
 
