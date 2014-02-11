@@ -11,15 +11,12 @@ class MyCommand
     paths_l << Dir.home if paths_l.empty?
     paths_r << Dir.home if paths_r.empty?
 
-    paths_l.each { |path| add_foldertab($ui.notebook_l, path) }
-    paths_r.each { |path| add_foldertab($ui.notebook_r, path) }
+    paths_l.each { |path| foldertab_new($ui.notebook_l, path) }
+    paths_r.each { |path| foldertab_new($ui.notebook_r, path) }
   end
 
   private
   def create_gui
-    @panel_infos_left = []
-    @panel_infos_right = []
-
     $ui.root = TkRoot.new do |root|
       title "MyCommand #{VERSION} - #{REGISTER}"
 
