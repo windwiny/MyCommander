@@ -42,7 +42,7 @@ class MyCommand
         # end
 
         Ttk::Frame.new(main_frame) do |frame|
-          Ttk::Panedwindow.new(frame, :orient=>:horizontal) do |pw|
+          $ui.panedwindow = Ttk::Panedwindow.new(frame, :orient=>:horizontal) do |pw|
             $ui.notebook_l = Ttk::Notebook.new(pw) { |nb|
               enable_traversal
               pack(:fill=>:both, :expand=>:yes)
@@ -53,6 +53,7 @@ class MyCommand
             }
 
             add($ui.notebook_l, $ui.notebook_r)
+            sashpos(0, Tk.root.winfo_width/2)
             pack(:side=>:left, :expand=>:yes, :fill=>:both)
           end
 

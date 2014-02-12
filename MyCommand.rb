@@ -62,6 +62,7 @@ class UI
   end
 
   attr_accessor :root, :main_frame
+  attr_accessor :panedwindow
   attr_accessor :notebook_l, :notebook_r
   attr_accessor :command_input, :command_label
   attr_accessor :lasttab
@@ -117,6 +118,7 @@ $ui = UI.new
 $pg = MyCommand.new
 $pg.run
 
-$ui.lasttab.focus
+# $ui.lasttab.focus $ui.lasttab
 
+Tk.root.focus Tk.root
 Tk.mainloop

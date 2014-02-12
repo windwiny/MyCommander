@@ -12,6 +12,10 @@ class MyCommand
     end
   end
 
+  def cmd_key(tree)
+    p tree
+  end
+
   def treeitem_sort_by(tree, col, direction)
     tree.children(nil).map!{|row| [tree.get(row, col), row.id]} .
       sort(&((direction)? proc{|x, y| y <=> x}: proc{|x, y| x <=> y})) .
@@ -55,11 +59,12 @@ class MyCommand
       f1.grid_columnconfigure(0, :weight=>1)
       f1.grid_rowconfigure(1, :weight=>1)
 
-      # tree.bind('Double-Button', proc{ p [Time.now,self,self.class] } )
-      # tree.bind('Return', proc{ p [Time.now,self,self.class] } )
-      tree.bind('<TreeviewOpen>', '%W') { |w| $pg.treeitem_open(w) }
+      tree.bind('Double-Button', proc{ $pg.treeitem_open(tree) } )
+      tree.bind('Return', proc{ $pg.treeitem_open(tree) } )
+      # tree.bind('<TreeviewOpen>', '%W') { |w| $pg.treeitem_open(w) }  #FIXME item nofound?
       tree.bind('<TreeviewSelect>', '%W') { |w| $pg.treeitem_select(w) }
       tree.bind('BackSpace', proc{ $pg.cmd_gotoup(tree) })
+      tree.bind('<Key>', proc{ $pg.cmd_key(tree) })
 
       font = Ttk::Style.lookup(tree[:style], :font)
       cols = %w(name ext size date attr)
@@ -90,6 +95,7 @@ class MyCommand
         [fn, File.extname(fn), '%8d'%st.size, st.mtime.strftime('%Y/%m/%d %H:%M:%S'), '%8o'%st.mode]
       end
     end
+
     file_infos.each do |name, ext, size, date, attr|
       it = tree.insert(nil, :end, :values=>[name, ext, size, date, attr])
       # cols.zip([name, ext, size, date, attr]).each do |col, val|
@@ -100,7 +106,7 @@ class MyCommand
       # end
     end
 
-    $ui.lasttab = tree.focus
+    $ui.lasttab = tree.focus(tree)
     tree.selection_set(tree.root.children[0])
   end
 
