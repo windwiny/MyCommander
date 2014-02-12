@@ -13,18 +13,21 @@ REGISTER = "NOT REGISTERED"
 
 class MyConfig
   attr_accessor :font
-  attr_accessor :config_file
   attr_accessor :config
 
   def initialize
     @config_file = File.absolute_path(File.expand_path('../config.xml', __FILE__))
     @old_xml = File.file?(@config_file) ? File.read(@config_file) : ''
     @config = Nokogiri::XML(@old_xml) { |cfg| cfg.noblanks }
-    initconfig
-    loadconfig
+    load_config_from_xml
+    init_config
   end
 
   def save
+    @config.root << "<WindowPosition></WindowPosition>" if @config.xpath("/#{PGNAME}/WindowPosition").empty?
+    @config.xpath("/#{PGNAME}/WindowPosition").first.content = "+#{$ui.root.winfo_x}+#{$ui.root.winfo_y}"
+    @config.xpath("/#{PGNAME}/WindowSize").first.content = "#{$ui.root.winfo_width}x#{$ui.root.winfo_height}"
+
     if @old_xml != @config.to_s
       @config.xpath("/#{PGNAME}/ModifyBy").first.content = Time.now
       puts "Write config to #{@config_file}"
@@ -34,7 +37,7 @@ class MyConfig
   end
   
   private
-  def initconfig
+  def load_config_from_xml
     @config.encoding = 'utf-8' unless @config.encoding
     @config << "<#{PGNAME} />" unless @config.root
     @config.root << "<CreateBy>#{Time.now}</CreateBy>" if @config.xpath("/#{PGNAME}/CreateBy").empty?
@@ -47,7 +50,7 @@ class MyConfig
     end
   end
   
-  def loadconfig
+  def init_config
     @font = TkFont.new(@config.xpath("/#{PGNAME}/Font").first.text)
   end
 end
@@ -119,6 +122,6 @@ $pg = MyCommand.new
 $pg.run
 
 # $ui.lasttab.focus $ui.lasttab
+# Tk.root.focus Tk.root
 
-Tk.root.focus Tk.root
 Tk.mainloop

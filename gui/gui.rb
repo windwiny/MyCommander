@@ -19,7 +19,8 @@ class MyCommand
   def create_gui
     $ui.root = TkRoot.new do |root|
       title "#{PGNAME} #{VERSION} - #{REGISTER}"
-      geometry $cfg.config.xpath("/#{PGNAME}/WindowSize").first.text
+      geometry $cfg.config.xpath("/#{PGNAME}/WindowSize").first.text rescue nil
+      geometry $cfg.config.xpath("/#{PGNAME}/WindowPosition").first.text rescue nil
 
       $ui.main_frame = Ttk::Frame.new(root) do |main_frame|
         # Ttk::Frame.new(main_frame) do |frame|
@@ -52,8 +53,10 @@ class MyCommand
               pack(:fill=>:both, :expand=>:yes)
             }
 
-            add($ui.notebook_l, $ui.notebook_r)
-            sashpos(0, Tk.root.winfo_width/2)
+            # add($ui.notebook_l, $ui.notebook_r)
+            # sashpos(0, Tk.root.winfo_width/2)
+            add($ui.notebook_l, :weight=>1)
+            add($ui.notebook_r, :weight=>1)
             pack(:side=>:left, :expand=>:yes, :fill=>:both)
           end
 
