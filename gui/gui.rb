@@ -46,10 +46,12 @@ class MyCommand
           $ui.panedwindow = Ttk::Panedwindow.new(frame, :orient=>:horizontal) do |pw|
             $ui.notebook_l = Ttk::Notebook.new(pw) { |nb|
               enable_traversal
+              bind('Double-Button', proc { $pg.foldertab_dup(nb) })
               pack(:fill=>:both, :expand=>:yes)
             }
             $ui.notebook_r = Ttk::Notebook.new(pw) { |nb|
               enable_traversal
+              bind('Double-Button', proc { $pg.foldertab_dup(nb) })
               pack(:fill=>:both, :expand=>:yes)
             }
 

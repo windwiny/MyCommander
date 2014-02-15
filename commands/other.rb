@@ -49,7 +49,7 @@ class MyCommand
       vpath = TkVariable.new
       vpath.value = path
 
-      pentry = Ttk::Entry.new(f1, :textvariable=>vpath, :state=>:readonly)
+      pentry = Tk::Entry.new(f1, :textvariable=>vpath, :state=>:readonly, :background=>:blue, :readonlybackground=>:gray)
       tree = Ttk::Treeview.new(f1, :columns=>%w(name ext size date attr), :show=>:headings)
       vsb = tree.yscrollbar(Ttk::Scrollbar.new(f1))
       $ui.tree2addr[tree] = vpath
@@ -106,8 +106,16 @@ class MyCommand
       # end
     end
 
-    $ui.lasttab = tree.focus(tree)
     tree.selection_set(tree.root.children[0])
+    $ui.lasttab = tree.set_focus(true)
+  end
+  
+  def foldertab_dup(nb)
+    p nb.tabs
+    p nb.raise
+    p nb.tabs.index nb.raise
+    path = '/'
+    foldertab_new(nb, path)
   end
 
 end

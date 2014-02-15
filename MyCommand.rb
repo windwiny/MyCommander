@@ -87,6 +87,7 @@ class MyCommand
       end
     end
 
+    return #TODO
     unless (chs=Tk.root.winfo_children).empty?
       chs.map(&:destroy)
       $cfg.save
@@ -123,5 +124,15 @@ $pg.run
 
 # $ui.lasttab.focus $ui.lasttab
 # Tk.root.focus Tk.root
+# Tk.root.set_focus(true)
 
-Tk.mainloop
+if Gem.win_platform?
+  Thread.new do Tk.mainloop end
+  require "pry"
+  binding.pry
+else
+  # Tk.root.iconify()
+  # Tk.root.update()
+  # Tk.root.deiconify()
+  Tk.mainloop
+end
