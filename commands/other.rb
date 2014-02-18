@@ -118,4 +118,25 @@ class MyCommand
     foldertab_new(nb, path)
   end
 
+
+
+  def cmd_switch_active_panel
+  end
+  def help_index
+  end
+  def cmd_rename
+  end
+  def cmd_view
+  end
+  def cmd_edit
+  end
+  def cmd_copy
+  end
+  def cmd_move
+  end
+  def cmd_newfolde
+  end
+  def cmd_delete
+  end
+  
 end
